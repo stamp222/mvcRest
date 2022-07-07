@@ -1,0 +1,112 @@
+package com.example.mvcrest.controllers;
+
+import com.example.mvcrest.api.v1.model.CustomerDTO;
+import com.example.mvcrest.services.CustomerService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.example.mvcrest.controllers.AbstractRestControllerTest.asJsonString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+class CustomerControllerTest {
+
+
+    MockMvc mockMvc;
+
+    @Mock
+    CustomerService customerService;
+
+    @InjectMocks
+    CustomerController customerController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.initMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(customerController).build();
+    }
+
+    @Test
+    void getAllCustomerss() throws Exception {
+        CustomerDTO cus1 = new CustomerDTO();
+        cus1.setFirstName("Jacek");
+        cus1.setLastName("Szyper");
+        cus1.setId(1L);
+        cus1.setCustomerUrl("/api/v1/customers/1");
+
+        CustomerDTO cus2 = new CustomerDTO();
+        cus2.setFirstName("Magda");
+        cus2.setLastName("Ptasik");
+        cus2.setId(2L);
+        cus2.setCustomerUrl("/api/v1/customers/2");
+
+        List<CustomerDTO> customerList = Arrays.asList(cus1, cus2);
+
+        when(customerService.getAllCustomers()).thenReturn(customerList);
+
+        mockMvc.perform(get("/api/v1/customers/")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customers", hasSize(2)));
+    }
+
+    @Test
+    void getCustomerById() throws Exception {
+
+        CustomerDTO cus1 = new CustomerDTO();
+        cus1.setFirstName("Jacek");
+        cus1.setLastName("Szyper");
+        cus1.setId(1L);
+        cus1.setCustomerUrl("/api/v1/customers/1");
+
+        when(customerService.getCustomerById(anyLong())).thenReturn(cus1);
+
+        mockMvc.perform(get("/api/v1/customers/1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id",  equalTo(1)));
+    }
+
+    @Test
+    void createNewCustomerTest() throws Exception {
+        CustomerDTO cus1 = new CustomerDTO();
+        cus1.setFirstName("Jacek");
+        cus1.setLastName("Szyper");
+
+        CustomerDTO cus1Returned = new CustomerDTO();
+        cus1.setFirstName("Jacek");
+        cus1.setLastName("Szyper");
+        cus1.setCustomerUrl("/api/v1/customers/1");
+
+        when(customerService.createNewCustomer(cus1)).thenReturn(cus1);
+
+        mockMvc.perform(post("/api/v1/customers/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(cus1)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName", equalTo("Jacek")))
+                .andExpect(jsonPath("$.customer_url", equalTo("/api/v1/customers/1")));
+
+
+//        mockMvc.perform(post("/api/v1/customers/")
+//                        .contentType(APPLICATION_JSON)
+//                        .content(asJsonString(cus1)))
+//                .andReturn().getResponse().getContentAsString();
+    }
+}

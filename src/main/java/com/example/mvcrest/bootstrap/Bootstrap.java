@@ -1,21 +1,46 @@
 package com.example.mvcrest.bootstrap;
 
 import com.example.mvcrest.domain.Category;
+import com.example.mvcrest.domain.Customer;
 import com.example.mvcrest.repositories.CategoryRepository;
+import com.example.mvcrest.repositories.CustomerRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Bootstrap implements CommandLineRunner {
 
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
+    private final CustomerRepository customerRepository;
 
-    public Bootstrap(CategoryRepository categoryRepository) {
+    public Bootstrap(CategoryRepository categoryRepository, CustomerRepository customerRepository) {
         this.categoryRepository = categoryRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
+        loadCategories();
+        loadCustomers();
+    }
+
+    private void loadCustomers() {
+        Customer cus1 = new Customer();
+        cus1.setFirstName("Jacek");
+        cus1.setLastName("Szyper");
+        Customer cus2 = new Customer();
+        cus2.setFirstName("Magda");
+        cus2.setLastName("Ptasik");
+        Customer cus3 = new Customer();
+        cus3.setFirstName("Adam");
+        cus3.setLastName("Pawera");
+        customerRepository.save(cus1);
+        customerRepository.save(cus2);
+        customerRepository.save(cus3);
+        System.out.println("----------Data customers Loaded: "+ customerRepository.count() + "----------" );
+    }
+
+    private void loadCategories() {
         Category cat1 = new Category();
         cat1.setName("Fruits");
         Category cat2 = new Category();
@@ -31,6 +56,6 @@ public class Bootstrap implements CommandLineRunner {
         categoryRepository.save(cat3);
         categoryRepository.save(cat4);
         categoryRepository.save(cat5);
-        System.out.println("----------Data Loaded: "+ categoryRepository.count() + "----------" );
+        System.out.println("----------Data categories Loaded: "+ categoryRepository.count() + "----------" );
     }
 }
