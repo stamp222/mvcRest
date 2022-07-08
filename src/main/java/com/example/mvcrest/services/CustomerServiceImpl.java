@@ -4,7 +4,6 @@ import com.example.mvcrest.api.v1.mapper.CustomerMapper;
 import com.example.mvcrest.api.v1.model.CustomerDTO;
 import com.example.mvcrest.domain.Customer;
 import com.example.mvcrest.repositories.CustomerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,21 +14,13 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl implements CustomerService{
 
 
-    private CustomerMapper customerMapper;
-    private CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
+    private final CustomerRepository customerRepository;
 
-
-    @Autowired
-    public void setCustomerMapper(CustomerMapper customerMapper) {
+    public CustomerServiceImpl(CustomerMapper customerMapper, CustomerRepository customerRepository) {
         this.customerMapper = customerMapper;
-    }
-
-
-    @Autowired
-    public void setCustomerRepository(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
-
 
 
     @Override
@@ -54,10 +45,38 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     public CustomerDTO createNewCustomer(CustomerDTO customerDTO) {
-        Customer customer = customerMapper.customerDTOtoCustomer(customerDTO);
+        return saveAndReturnDTO(customerMapper.customerDTOtoCustomer(customerDTO));
+    }
+
+    private CustomerDTO saveAndReturnDTO(Customer customer) {
         Customer save = customerRepository.save(customer);
         CustomerDTO customerDTO1 = customerMapper.customerToCustomerDTO(save);
         customerDTO1.setCustomerUrl("/api/v1/customer/" + save.getId());
         return customerDTO1;
     }
+
+    @Override
+    public CustomerDTO saveCustomerByDTO(Long customerId, CustomerDTO customerDTO) {
+        Customer customer = customerMapper.customerDTOtoCustomer(customerDTO);
+        customer.setId(customerId);
+        return saveAndReturnDTO(customer);
+    }
+
+    @Override
+    public CustomerDTO patchCustomerByDTO(Long customerId, CustomerDTO customerDTO) {
+        return customerRepository.findById(customerId)
+                .map(customer -> {
+                    if (customerDTO.getFirstName() != null) {
+                        customer.setFirstName(customerDTO.getFirstName());
+                    }
+                    if(customerDTO.getLastName() != null) {
+                        customer.setLastName(customerDTO.getLastName());
+                    }
+                    CustomerDTO customerDTO1 = customerMapper.customerToCustomerDTO(customerRepository.save(customer));
+                    customerDTO1.setCustomerUrl("/api/v1/customer/" + customerId);
+                    return customerDTO1;
+                }).orElseThrow(RuntimeException::new);
+    }
+
+
 }

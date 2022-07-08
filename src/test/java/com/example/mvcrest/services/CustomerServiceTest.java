@@ -7,6 +7,7 @@ import com.example.mvcrest.repositories.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -24,15 +25,14 @@ class CustomerServiceTest {
     @Mock
     CustomerRepository customerRepository;
 
-    CustomerService customerService;
+    @InjectMocks
+    CustomerService customerService; // zamiast inicjalizacji w setUp
 
     CustomerMapper customerMapper = CustomerMapper.INSTANCE;
 
     @BeforeEach
     void setUp() {
-        customerService = new CustomerServiceImpl();
-        customerService.setCustomerMapper(customerMapper);
-        customerService.setCustomerRepository(customerRepository);
+//        customerService = new CustomerServiceImpl(customerMapper, customerRepository);
     }
 
     @Test
@@ -74,11 +74,31 @@ class CustomerServiceTest {
         cus.setLastName("Szyper");
 
         //TODO fix
-//        when(customerRepository.save(any(Customer.class))).thenReturn(cus);
+//            when(customerRepository.save(any(Customer.class))).thenReturn(cus);
 //
 //        CustomerDTO newCustomer = customerService.createNewCustomer(customerDTO);
 //
 //        assertEquals(customerDTO.getFirstName(), newCustomer.getFirstName());
 //        assertEquals("/api/v1/customers/1", newCustomer.getCustomerUrl());
+    }
+
+    @Test
+    void saveCustomerByDTO() {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setFirstName("Jacob");
+        customerDTO.setLastName("Tarantinto");
+
+        Customer cus = new Customer();
+        cus.setId(1L);
+        cus.setFirstName("Jacek");
+        cus.setLastName("Szyper");
+
+        //TODO fix
+//        when(customerRepository.save(any(Customer.class))).thenReturn(cus);
+//
+//        CustomerDTO savedCustomer = customerService.saveCustomerByDTO(1L, customerDTO);
+//
+//        assertEquals(customerDTO.getFirstName(), savedCustomer.getFirstName());
+//        assertEquals("/api/v1/customers/1", savedCustomer.getCustomerUrl());
     }
 }
