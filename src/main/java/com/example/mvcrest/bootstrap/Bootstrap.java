@@ -2,8 +2,10 @@ package com.example.mvcrest.bootstrap;
 
 import com.example.mvcrest.domain.Category;
 import com.example.mvcrest.domain.Customer;
+import com.example.mvcrest.domain.Vendor;
 import com.example.mvcrest.repositories.CategoryRepository;
 import com.example.mvcrest.repositories.CustomerRepository;
+import com.example.mvcrest.repositories.VendorRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -12,16 +14,32 @@ public class Bootstrap implements CommandLineRunner {
 
     private final CategoryRepository categoryRepository;
     private final CustomerRepository customerRepository;
+    private final VendorRepository vendorRepository;
 
-    public Bootstrap(CategoryRepository categoryRepository, CustomerRepository customerRepository) {
+    public Bootstrap(CategoryRepository categoryRepository, CustomerRepository customerRepository, VendorRepository vendorRepository) {
         this.categoryRepository = categoryRepository;
         this.customerRepository = customerRepository;
+        this.vendorRepository = vendorRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
         loadCategories();
         loadCustomers();
+        loadVendors();
+    }
+
+    private void loadVendors() {
+        Vendor ven1 = new Vendor();
+        ven1.setName("Apple");
+        Vendor ven2 = new Vendor();
+        ven2.setName("Microsoft");
+        Vendor ven3 = new Vendor();
+        ven3.setName("Google");
+        vendorRepository.save(ven1);
+        vendorRepository.save(ven2);
+        vendorRepository.save(ven3);
+        System.out.println("----------Vendors Loaded: "+ vendorRepository.count() + "----------" );
     }
 
     private void loadCustomers() {

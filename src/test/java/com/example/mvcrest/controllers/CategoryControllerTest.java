@@ -1,6 +1,8 @@
 package com.example.mvcrest.controllers;
 
+import com.example.mvcrest.ResourceNotFoundException;
 import com.example.mvcrest.api.v1.model.CategoryDTO;
+import com.example.mvcrest.controllers.v1.CategoryController;
 import com.example.mvcrest.services.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-class CategoryControllerTest {
+class CategoryControllerTest extends AbstractRestControllerTest{
 
     @InjectMocks
     CategoryController categoryController;
@@ -36,7 +38,9 @@ class CategoryControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(categoryController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(categoryController)
+                .setControllerAdvice(RestResponseEntityExceptionHandler.class)
+                .build();
     }
 
     @Test
@@ -65,6 +69,16 @@ class CategoryControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo("Jim")));
+
+    }
+
+    @Test
+    void getByNameCategoryNotFoundTest() throws Exception {
+
+        when(categoryService.getCategoryByName(anyString())).thenThrow(ResourceNotFoundException.class);
+        mockMvc.perform(get("/api/v1/categories/Foo")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
 
     }
 }

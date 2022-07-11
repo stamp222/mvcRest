@@ -7,7 +7,6 @@ import com.example.mvcrest.repositories.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -17,6 +16,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,14 +26,13 @@ class CustomerServiceTest {
     @Mock
     CustomerRepository customerRepository;
 
-    @InjectMocks
-    CustomerService customerService; // zamiast inicjalizacji w setUp
+    CustomerService customerService;
 
     CustomerMapper customerMapper = CustomerMapper.INSTANCE;
 
     @BeforeEach
     void setUp() {
-//        customerService = new CustomerServiceImpl(customerMapper, customerRepository);
+        customerService = new CustomerServiceImpl(customerMapper, customerRepository);
     }
 
     @Test
@@ -58,7 +58,7 @@ class CustomerServiceTest {
 
         CustomerDTO customerById = customerService.getCustomerById(1L);
 
-        assertEquals(1L, customerById.getId());
+        assertEquals(1L, cus.getId());
         assertEquals("Jacek", customerById.getFirstName());
     }
 
@@ -100,5 +100,12 @@ class CustomerServiceTest {
 //
 //        assertEquals(customerDTO.getFirstName(), savedCustomer.getFirstName());
 //        assertEquals("/api/v1/customers/1", savedCustomer.getCustomerUrl());
+    }
+
+    @Test
+    void deleteCustomerTest() throws Exception {
+        Long id = 1L;
+        customerRepository.deleteById(id);
+        verify(customerRepository, times(1)).deleteById(anyLong());
     }
 }
