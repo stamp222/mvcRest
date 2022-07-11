@@ -54,6 +54,7 @@ class CategoryControllerTest extends AbstractRestControllerTest{
         List<CategoryDTO> categories = Arrays.asList(cat1, cat2);
         when(categoryService.getAllCategories()).thenReturn(categories);
         mockMvc.perform(get("/api/v1/categories/")
+                        .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.categoryList", hasSize(2)));
@@ -66,6 +67,7 @@ class CategoryControllerTest extends AbstractRestControllerTest{
         cat1.setName("Jim");
         when(categoryService.getCategoryByName(anyString())).thenReturn(cat1);
         mockMvc.perform(get("/api/v1/categories/Jim")
+                        .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo("Jim")));
@@ -77,6 +79,7 @@ class CategoryControllerTest extends AbstractRestControllerTest{
 
         when(categoryService.getCategoryByName(anyString())).thenThrow(ResourceNotFoundException.class);
         mockMvc.perform(get("/api/v1/categories/Foo")
+                        .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
